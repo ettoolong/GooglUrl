@@ -6,6 +6,7 @@ let notifications = require("sdk/notifications");
 let clipboard = require("sdk/clipboard");
 let tabs = require("sdk/tabs");
 let _ = require("sdk/l10n").get;
+let tempUrl = '';
 
 function dummy(text, callback) {
   callback(text);
@@ -49,10 +50,15 @@ function makeShortURL(long_url) {
 let menuItem = contextMenu.Item({
   label: "Goo.gl",
   image: data.url("images/icon.svg"),
-  context: contextMenu.SelectorContext("a[href], img"),
+  context: [
+    contextMenu.PredicateContext(function(context){ tempUrl = context.linkURL || context.srcURL; return !!tempUrl;}),
+    contextMenu.SelectorContext("a[href], img[src]")
+  ],
   contentScriptFile: data.url("js/context-menu.js"),
   onMessage: function (url) {
-    makeShortURL(url);
+    url = url || tempUrl;
+    if(url)
+      makeShortURL(url);
   }
 });
 
