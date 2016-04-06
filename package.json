@@ -1,7 +1,7 @@
 {
   "title": "Goo.gl url",
   "name": "googlurl",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Make short URL by Google's URL shortener.",
   "main": "data/js/addon-script.js",
   "author": "ettoolong@hotmail.com",

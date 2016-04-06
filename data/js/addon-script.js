@@ -8,11 +8,6 @@ let tabs = require("sdk/tabs");
 let _ = require("sdk/l10n").get;
 let tempUrl = '';
 
-function dummy(text, callback) {
-  callback(text);
-}
-
-exports.dummy = dummy;
 function showNotification(message) {
   notifications.notify({
     iconURL: data.url("images/icon.svg"),
