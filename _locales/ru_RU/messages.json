@@ -1,0 +1,37 @@
+{
+  "returnedErrorMessage": {
+    "message": "Получено сообщение об ошибке: $ERRMSG$.",
+    "placeholders": {
+      "errmsg" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "copiedToClipboard": {
+    "message": "Ссылка $LONGURL$ сокращена. Сокращённый адрес $SHORTURL$ скопирован в буфер обмена.",
+    "placeholders": {
+      "shorturl" : {
+        "content" : "$1"
+      },
+      "longurl" : {
+        "content" : "$2"
+      }
+    }
+  },
+  "errorContacting": {
+    "message": "Ошибка соединения с goo.gl.  Код состояния: $CODE$",
+    "placeholders": {
+      "code" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "creationFailed": {
+    "message": "Не удалось сократить адрес $ERRMSG$",
+    "placeholders": {
+      "errmsg" : {
+        "content" : "$1"
+      }
+    }
+  }
+}

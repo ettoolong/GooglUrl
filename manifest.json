@@ -1,0 +1,37 @@
+{
+  "description": "Make short URL by Google's URL shortener.",
+  "manifest_version": 2,
+  "name": "Goo.gl url",
+  "version": "0.0.4",
+  "icons": {
+    "48": "icon/icon.svg"
+  },
+  "applications": {
+    "gecko": {
+      "id": "@googlurl",
+      "strict_min_version": "52.0"
+    }
+  },
+  "developer": {
+    "name": "Ett Chung",
+    "url": "https://addons.mozilla.org/zh-TW/firefox/user/ett-chung/"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "browser_action": {
+    "browser_style": true,
+    "default_title": "Goo.gl url",
+    "default_icon": "icon/icon.svg"
+  },
+  "default_locale": "en",
+  "permissions": [
+    "https://www.googleapis.com/urlshortener/*",
+    "activeTab",
+    "clipboardWrite",
+    "contextMenus",
+    "notifications"
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "returnedErrorMessage": {
+    "message": "Goo.gl がエラーメッセージを返しました: $ERRMSG$.",
+    "placeholders": {
+      "errmsg" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "copiedToClipboard": {
+    "message": "$SHORTURL$ がクリップボードへコピーされました。次のアドレスを短縮しました: $LONGURL$",
+    "placeholders": {
+      "shorturl" : {
+        "content" : "$1"
+      },
+      "longurl" : {
+        "content" : "$2"
+      }
+    }
+  },
+  "errorContacting": {
+    "message": "goo.gl への接続に失敗しました。ステータスコード: $CODE$",
+    "placeholders": {
+      "code" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "creationFailed": {
+    "message": "短縮URLの作成に失敗しました: $ERRMSG$",
+    "placeholders": {
+      "errmsg" : {
+        "content" : "$1"
+      }
+    }
+  }
+}
