@@ -30,8 +30,13 @@
   "permissions": [
     "https://www.googleapis.com/urlshortener/*",
     "activeTab",
+    "storage",
     "clipboardWrite",
     "contextMenus",
     "notifications"
-  ]
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
 }

@@ -1,5 +1,81 @@
 let _short_url = '';
 
+let defaultPreference = {
+  currentPage: true,
+  hyperlink: true,
+  imageSource: true,
+  version: 1
+};
+let preferences = {};
+let menuId = null;
+
+const storageChangeHandler = (changes, area) => {
+  if(area === 'local') {
+    let changedItems = Object.keys(changes);
+    for (let item of changedItems) {
+      preferences[item] = changes[item].newValue;
+    }
+    resetContextMenu();
+  }
+};
+
+const resetContextMenu = () => {
+  browser.contextMenus.removeAll(() => {
+    menuId = null;
+    createContextMenu();
+  });
+};
+
+const createContextMenu = () => {
+  let contexts = [];
+  if(preferences.currentPage) {
+    contexts.push('page');
+  }
+  if(preferences.imageSource) {
+    contexts.push('image');
+  }
+  if(preferences.hyperlink) {
+    contexts.push('link');
+  }
+  if(contexts.length) {
+    menuId = browser.contextMenus.create({
+      type: 'normal',
+      title: 'Goo.gl',
+      contexts: contexts,
+      onclick: (info, tab) => {
+        if (preferences.hyperlink && info.linkUrl) {
+          makeShortURL(info.linkUrl);
+        }
+        else if(preferences.imageSource && info.srcUrl) {
+          makeShortURL(info.srcUrl);
+        }
+        else {
+          makeShortURL(tab.url);
+        }
+      }
+    });
+  }
+};
+
+const loadPreference = () => {
+  browser.storage.local.get().then(results => {
+    if ((typeof results.length === 'number') && (results.length > 0)) {
+      results = results[0];
+    }
+    if (!results.version) {
+      preferences = defaultPreference;
+      browser.storage.local.set(defaultPreference).then(res => {
+        browser.storage.onChanged.addListener(storageChangeHandler);
+      }, err => {
+      });
+    } else {
+      preferences = results;
+      browser.storage.onChanged.addListener(storageChangeHandler);
+    }
+    resetContextMenu();
+  });
+};
+
 function showNotification(message) {
   browser.notifications.create('GooglURL', {
     'type': 'basic',
@@ -79,27 +155,14 @@ function makeShortURL(long_url) {
   });
 }
 
-browser.contextMenus.create({
-  type: 'normal',
-  title: 'Goo.gl',
-  contexts: ['page', 'image', 'link'],
-  onclick: (info, tab) => {
-    if (info.linkUrl) {
-      makeShortURL(info.linkUrl);
-    }
-    else if(info.srcUrl) {
-      makeShortURL(info.srcUrl);
-    }
-    else {
-      makeShortURL(tab.url);
-    }
-  }
-});
-
 function getShortURL() {
   return _short_url;
 }
 
 browser.browserAction.onClicked.addListener(tab => {
   makeShortURL(tab.url);
+});
+
+window.addEventListener('DOMContentLoaded', event => {
+  loadPreference();
 });
