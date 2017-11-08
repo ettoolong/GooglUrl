@@ -1,3 +1,4 @@
+const amo = /^https?:\/\/(discovery\.)?(addons\.mozilla\.org|testpilot\.firefox\.com)|^about:/i;
 let _short_url = '';
 
 let defaultPreference = {
@@ -105,24 +106,25 @@ function copyToClipboard(text, activeTabID, copyByWindow, callback) {
     });
   }
   else {
-    let code = `
-    var node = document.createElement('textarea');
-    node.setAttribute('style', 'position: fixed; top: 0; left: -1000px; z-index: -1;');
-    node.value = \`${text}\`;
-    document.body.appendChild(node);
-    node.select();
-    var status = document.execCommand('copy');
-    document.body.removeChild(node);
-    status; // the value returned to chrome.tabs.executeScript() // Array [ true ] // Array [ false ]
-    `;
+    let code = `(() => {
+      document.addEventListener('copy', e => {
+        e.stopImmediatePropagation(); // prevent conflict
+        e.preventDefault(); // prevent copy of other data
+        e.clipboardData.setData('text/plain', ${JSON.stringify(text)});
+      }, {capture: true, once: true}); // FF50+, Ch55+
+      return document.execCommand('copy');
+    })();`;
+
     chrome.tabs.executeScript(activeTabID, {code : code}, function(result){
-      callback(result && result[0] ? result[0] : null); });
+      callback(result && result[0] ? result[0] : null);
+    });
   }
 }
 
 function makeShortURL(long_url) {
   chrome.tabs.query({currentWindow: true, active: true}, tabs => {
-    let copyByWindow = tabs[0].url.startsWith('https://addons.mozilla.org/');
+    let copyByWindow = amo.test(tabs[0].url);
+    // let copyByWindow = tabs[0].url.startsWith('https://addons.mozilla.org/');
     let keyArray = ['AIzaSyAJo7QuacNSh_zHEKFpFBqvlt9ZgqUbEG0',
                     'AIzaSyCIZD2of6bSj_kQf7nPorEPFiik9xnH-zg'];
     let n = Math.floor(Math.random() * keyArray.length);

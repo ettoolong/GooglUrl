@@ -1,9 +1,10 @@
-let text = browser.extension.getBackgroundPage().getShortURL();
-let node = document.createElement('textarea');
-node.setAttribute('style', 'position: fixed; top: 0; left: -1000px; z-index: -1;');
-node.value = `${text}`;
-document.body.appendChild(node);
-node.select();
-let status = document.execCommand('copy');
-document.body.removeChild(node);
-window.close();
+(() => {
+  let t = browser.extension.getBackgroundPage().getShortURL();
+  document.addEventListener('copy', e => {
+    e.stopImmediatePropagation(); // prevent conflict
+    e.preventDefault(); // prevent copy of other data
+    e.clipboardData.setData('text/plain', t);
+  }, {capture: true, once: true}); // FF50+, Ch55+
+  document.execCommand('copy');
+  window.close();
+})();
