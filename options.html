@@ -8,24 +8,43 @@
   </head>
   <body>
     <div>
-      <div style="display:inline-block;">
-        <label for="currentPage" >Shorten URL by context menu:</label>
+      <div class="prefGroup">
+        <label data-l10n-id="contextMenuOptions">Shorten URL by context menu:</label>
         <div class="itemDiv">
           <input type="checkbox" id="currentPage">
-          <label for="currentPage" >Current page</label>
+          <label for="currentPage" data-l10n-id="currentPage">Current page</label>
         </div>
 
         <div class="itemDiv">
           <input type="checkbox" id="hyperlink">
-          <label for="hyperlink" >Hyperlink</label>
+          <label for="hyperlink" data-l10n-id="hyperlink">Hyperlink</label>
         </div>
 
         <div class="itemDiv">
           <input type="checkbox" id="imageSource">
-          <label for="imageSource" >Image source</label>
+          <label for="imageSource" data-l10n-id="imageSource">Image source</label>
+        </div>
+      </div>
+
+      <div class="prefGroup" type="radioGroup" id="copyUrl">
+        <label data-l10n-id="copyUrl">Copy shortened URL:</label>
+        <div class="itemDiv">
+          <input type="radio" name="copyUrl" value="0" id="copyUrlAction1">
+          <label for="copyUrlAction1" data-l10n-id="automatic">Auto</label>
+          -
+          <input type="checkbox" id="showNotifications">
+          <label for="showNotifications" data-l10n-id="showNotifications">Show notification when copying is completed.</label>
         </div>
 
+        <div class="itemDiv">
+          <input type="radio" name="copyUrl" value="1" id="copyUrlAction2">
+          <label for="copyUrlAction2" data-l10n-id="manual">Manual</label>
+          -
+          <input type="checkbox" id="autoClosePopup">
+          <label for="autoClosePopup" data-l10n-id="autoClosePopup">Close pop-up panel after copying is completed.</label>
+        </div>
       </div>
+
     </div>
   </body>
 </html>

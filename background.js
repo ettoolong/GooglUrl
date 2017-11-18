@@ -1,11 +1,14 @@
 const amo = /^https?:\/\/(discovery\.)?(addons\.mozilla\.org|testpilot\.firefox\.com)|^about:/i;
-let _short_url = '';
+let _temp_text = '';
 
 let defaultPreference = {
   currentPage: true,
   hyperlink: true,
   imageSource: true,
-  version: 1
+  copyUrl: 0, //0: automatic, 1: manual
+  showNotifications: true,
+  autoClosePopup: true,
+  version: 2
 };
 let preferences = {};
 let menuId = null;
@@ -17,6 +20,7 @@ const storageChangeHandler = (changes, area) => {
       preferences[item] = changes[item].newValue;
     }
     resetContextMenu();
+    resetPopup();
   }
 };
 
@@ -25,6 +29,13 @@ const resetContextMenu = () => {
     menuId = null;
     createContextMenu();
   });
+};
+
+const resetPopup = () => {
+  let popup = preferences.copyUrl === 1 ? 'popup.html' : '';
+  browser.browserAction.setPopup(
+    {popup: popup}
+  )
 };
 
 const createContextMenu = () => {
@@ -73,7 +84,23 @@ const loadPreference = () => {
       preferences = results;
       browser.storage.onChanged.addListener(storageChangeHandler);
     }
+
+    if (preferences.version !== defaultPreference.version) {
+      let update = {};
+      let needUpdate = false;
+      for(let p in defaultPreference) {
+        if(preferences[p] === undefined) {
+          update[p] = defaultPreference[p];
+          needUpdate = true;
+        }
+      }
+      if(needUpdate) {
+        browser.storage.local.set(update).then(null, err => {});
+      }
+    }
+
     resetContextMenu();
+    resetPopup();
   });
 };
 
@@ -87,6 +114,7 @@ function showNotification(message) {
 }
 
 function copyToClipboard(text, activeTabID, copyByWindow, callback) {
+  _temp_text = text;
   if(copyByWindow) {
     browser.windows.create({
       url: 'copy.html',
@@ -121,8 +149,10 @@ function copyToClipboard(text, activeTabID, copyByWindow, callback) {
   }
 }
 
-function makeShortURL(long_url) {
+function makeShortURL(long_url, callback) {
   chrome.tabs.query({currentWindow: true, active: true}, tabs => {
+    if(long_url === '')
+      long_url = tabs[0].url;
     let copyByWindow = amo.test(tabs[0].url);
     // let copyByWindow = tabs[0].url.startsWith('https://addons.mozilla.org/');
     let keyArray = ['AIzaSyAJo7QuacNSh_zHEKFpFBqvlt9ZgqUbEG0',
@@ -134,22 +164,49 @@ function makeShortURL(long_url) {
     req.onload = function(e) {
       let response = JSON.parse(req.responseText);
       if(response.error) {
-        showNotification(browser.i18n.getMessage('returnedErrorMessage', response.error.message));
-      }
-      else {
-        let short_url = _short_url = response.id;
-        copyToClipboard(short_url, tabs[0].id, copyByWindow, function(result) {
-          if (result) {
-            showNotification(browser.i18n.getMessage('copiedToClipboard', [short_url, long_url]));
+        let message = browser.i18n.getMessage('returnedErrorMessage', response.error.message);
+        if(callback) {
+          callback(message);
+        }
+        else {
+          if(preferences.showNotifications) {
+            showNotification(message);
           }
           else {
-            showNotification(browser.i18n.getMessage('creationFailed', browser.i18n.getMessage('errorContacting', 'Access clipboard failed')));
+            copyToClipboard(message, tabs[0].id, copyByWindow, result => {});
           }
-        });
+        }
+      }
+      else {
+        let short_url = response.id;
+        if(callback) {
+          callback(null, short_url);
+        }
+        else {
+          copyToClipboard(short_url, tabs[0].id, copyByWindow, result => {
+            if (result) {
+              showNotification(browser.i18n.getMessage('copiedToClipboard', [short_url, long_url]));
+            }
+            else {
+              showNotification(browser.i18n.getMessage('creationFailed', browser.i18n.getMessage('errorContacting', 'Access clipboard failed')));
+            }
+          });
+        }
       }
     }
     req.onerror = function(e) {
-      showNotification(browser.i18n.getMessage('creationFailed', browser.i18n.getMessage('errorContacting', req.status)));
+      let message = browser.i18n.getMessage('creationFailed', browser.i18n.getMessage('errorContacting', req.status));
+      if(callback) {
+        callback(message);
+      }
+      else {
+        if(preferences.showNotifications) {
+          showNotification(message);
+        }
+        else {
+          copyToClipboard(message, tabs[0].id, copyByWindow, result => {});
+        }
+      }
     }
     req.open('POST', apiUrl);
     req.setRequestHeader('Content-Type', 'application/json');
@@ -157,8 +214,12 @@ function makeShortURL(long_url) {
   });
 }
 
-function getShortURL() {
-  return _short_url;
+function getTempText() {
+  return _temp_text;
+}
+
+function getPreference(name) {
+  return preferences[name];
 }
 
 browser.browserAction.onClicked.addListener(tab => {
@@ -168,3 +229,44 @@ browser.browserAction.onClicked.addListener(tab => {
 window.addEventListener('DOMContentLoaded', event => {
   loadPreference();
 });
+
+const messageHandler = (message, sender, sendResponse) => {
+  if(message.action === 'shortenUrl') {
+    makeShortURL(message.url);
+  }
+  else if(message.action === 'shortenUrlWithResponse') {
+    makeShortURL(message.url, (err, url) => {
+      sendResponse({err: err, url: url});
+    });
+    return true;
+  }
+};
+
+browser.runtime.onMessage.addListener(messageHandler);
+browser.runtime.onMessageExternal.addListener(messageHandler);
+
+/*
+  APIs for other addon, for example:
+
+  ```
+  browser.runtime.sendMessage('@googlurl',
+  {
+    action: 'shortenUrlWithResponse',
+    url: data.element.linkHref
+  }).then( message => {
+    if(message.err) {
+      // handle error message
+    }
+    console.log(message.url); //shortened URL
+  });
+  ```
+  or
+
+  ```
+  browser.runtime.sendMessage('@googlurl',
+  {
+    action: 'shortenUrl',
+    url: data.element.linkHref
+  }).then();
+  ```
+*/

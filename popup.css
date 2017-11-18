@@ -1,0 +1,9 @@
+.popupBody{
+  margin:10px;
+}
+
+.popupButton{
+  margin:10px auto 0px auto;
+  min-width: 30px;
+  min-height: 30px;
+}

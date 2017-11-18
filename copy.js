@@ -1,5 +1,5 @@
 (() => {
-  let t = browser.extension.getBackgroundPage().getShortURL();
+  let t = browser.extension.getBackgroundPage().getTempText();
   document.addEventListener('copy', e => {
     e.stopImmediatePropagation(); // prevent conflict
     e.preventDefault(); // prevent copy of other data

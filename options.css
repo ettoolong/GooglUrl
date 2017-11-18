@@ -1,3 +1,8 @@
+.prefGroup {
+  display: block;
+  margin-top:12px;
+}
+
 .itemDiv {
   display: block;
   margin-top:4px;
