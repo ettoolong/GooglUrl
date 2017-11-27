@@ -43,6 +43,15 @@
   "btnCopy": {
     "message": "複製到剪貼簿"
   },
+  "simplifyCopy": {
+    "message": "複製"
+  },
+  "fullUrl": {
+    "message": "完整縮址"
+  },
+  "withoutProtocol": {
+    "message": "去除 https://"
+  },
   "copyUrl": {
     "message": "使用工具列按紐複製縮短的網址:"
   },

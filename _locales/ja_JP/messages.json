@@ -43,6 +43,15 @@
   "btnCopy": {
     "message": "Copy to clipboard"
   },
+  "simplifyCopy": {
+    "message": "Copy"
+  },
+  "fullUrl": {
+    "message": "Full URL"
+  },
+  "withoutProtocol": {
+    "message": "Without 'https://'"
+  },
   "copyUrl": {
     "message": "Toolbar button copy shortened URL:"
   },

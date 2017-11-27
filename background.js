@@ -5,10 +5,11 @@ let defaultPreference = {
   currentPage: true,
   hyperlink: true,
   imageSource: true,
+  simplifyCopy: 0, //0: full, 1: without 'http://'
   copyUrl: 0, //0: automatic, 1: manual
   showNotifications: true,
   autoClosePopup: true,
-  version: 2
+  version: 3
 };
 let preferences = {};
 let menuId = null;
@@ -179,6 +180,9 @@ function makeShortURL(long_url, callback) {
       }
       else {
         let short_url = response.id;
+        if(preferences.simplifyCopy === 1) {
+          short_url = short_url.replace('https://','');
+        }
         if(callback) {
           callback(null, short_url);
         }
