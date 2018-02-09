@@ -12,7 +12,7 @@ let defaultPreference = {
   version: 3
 };
 let preferences = {};
-let menuId = null;
+let menuIdSet = {};
 
 const storageChangeHandler = (changes, area) => {
   if(area === 'local') {
@@ -27,7 +27,7 @@ const storageChangeHandler = (changes, area) => {
 
 const resetContextMenu = () => {
   browser.contextMenus.removeAll(() => {
-    menuId = null;
+    menuIdSet = {};
     createContextMenu();
   });
 };
@@ -40,31 +40,39 @@ const resetPopup = () => {
 };
 
 const createContextMenu = () => {
-  let contexts = [];
+  let contexts = [
+    {name: 'currentPage', context: 'page'},
+    {name: 'imageSource', context: 'image'},
+    {name: 'hyperlink', context: 'link'}
+  ];
+
   if(preferences.currentPage) {
-    contexts.push('page');
+    menuIdSet.currentPage = browser.contextMenus.create({
+      type: 'normal',
+      title: 'Goo.gl('+ browser.i18n.getMessage('currentPage') +')',
+      contexts: ['page'],
+      onclick: (info, tab) => {
+        makeShortURL(tab.url);
+      }
+    });
   }
   if(preferences.imageSource) {
-    contexts.push('image');
+    menuIdSet.imageSource = browser.contextMenus.create({
+      type: 'normal',
+      title: 'Goo.gl('+ browser.i18n.getMessage('imageSource') +')',
+      contexts: ['image'],
+      onclick: (info, tab) => {
+        makeShortURL(info.linkUrl);
+      }
+    });
   }
   if(preferences.hyperlink) {
-    contexts.push('link');
-  }
-  if(contexts.length) {
-    menuId = browser.contextMenus.create({
+    menuIdSet.hyperlink = browser.contextMenus.create({
       type: 'normal',
-      title: 'Goo.gl',
-      contexts: contexts,
+      title: 'Goo.gl('+ browser.i18n.getMessage('hyperlink') +')',
+      contexts: ['link'],
       onclick: (info, tab) => {
-        if (preferences.hyperlink && info.linkUrl) {
-          makeShortURL(info.linkUrl);
-        }
-        else if(preferences.imageSource && info.srcUrl) {
-          makeShortURL(info.srcUrl);
-        }
-        else {
-          makeShortURL(tab.url);
-        }
+        makeShortURL(info.srcUrl);
       }
     });
   }
@@ -243,6 +251,9 @@ const messageHandler = (message, sender, sendResponse) => {
       sendResponse({err: err, url: url});
     });
     return true;
+  }
+  else if(message.action === 'closeCopyWindow' && sender.id === '@googlurl') {
+    browser.windows.remove(message.winId).then();
   }
 };
 

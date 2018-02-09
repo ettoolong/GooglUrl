@@ -6,5 +6,7 @@
     e.clipboardData.setData('text/plain', t);
   }, {capture: true, once: true}); // FF50+, Ch55+
   document.execCommand('copy');
-  window.close();
+  browser.windows.getCurrent((win) => {
+    browser.runtime.sendMessage({action: 'closeCopyWindow', winId: win.id}).then();
+  });
 })();
