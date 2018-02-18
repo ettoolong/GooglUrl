@@ -62,7 +62,7 @@ const createContextMenu = () => {
       title: 'Goo.gl('+ browser.i18n.getMessage('imageSource') +')',
       contexts: ['image'],
       onclick: (info, tab) => {
-        makeShortURL(info.linkUrl);
+        makeShortURL(info.srcUrl);
       }
     });
   }
@@ -72,7 +72,7 @@ const createContextMenu = () => {
       title: 'Goo.gl('+ browser.i18n.getMessage('hyperlink') +')',
       contexts: ['link'],
       onclick: (info, tab) => {
-        makeShortURL(info.srcUrl);
+        makeShortURL(info.linkUrl);
       }
     });
   }

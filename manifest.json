@@ -2,7 +2,7 @@
   "description": "Make short URL by Google's URL shortener.",
   "manifest_version": 2,
   "name": "Goo.gl url",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "icons": {
     "48": "icon/icon.svg"
   },
