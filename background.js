@@ -197,7 +197,9 @@ function makeShortURL(long_url, callback) {
         else {
           copyToClipboard(short_url, tabs[0].id, copyByWindow, result => {
             if (result) {
-              showNotification(browser.i18n.getMessage('copiedToClipboard', [short_url, long_url]));
+              if(preferences.showNotifications) {
+                showNotification(browser.i18n.getMessage('copiedToClipboard', [short_url, long_url]));
+              }
             }
             else {
               showNotification(browser.i18n.getMessage('creationFailed', browser.i18n.getMessage('errorContacting', 'Access clipboard failed')));
