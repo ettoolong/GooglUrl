@@ -160,9 +160,16 @@ function copyToClipboard(text, activeTabID, copyByWindow, callback) {
 
 function makeShortURL(long_url, callback) {
   chrome.tabs.query({currentWindow: true, active: true}, tabs => {
+    let tab;
+    if (typeof tabs.length === 'number') {
+      tab = tabs[0];
+    }
+    else {
+      tab = tabs;
+    }
     if(long_url === '')
-      long_url = tabs[0].url;
-    let copyByWindow = amo.test(tabs[0].url);
+      long_url = tab.url;
+    let copyByWindow = amo.test(tab.url);
     // let copyByWindow = tabs[0].url.startsWith('https://addons.mozilla.org/');
     let keyArray = ['AIzaSyAJo7QuacNSh_zHEKFpFBqvlt9ZgqUbEG0',
                     'AIzaSyCIZD2of6bSj_kQf7nPorEPFiik9xnH-zg'];
@@ -182,7 +189,7 @@ function makeShortURL(long_url, callback) {
             showNotification(message);
           }
           else {
-            copyToClipboard(message, tabs[0].id, copyByWindow, result => {});
+            copyToClipboard(message, tab.id, copyByWindow, result => {});
           }
         }
       }
@@ -195,7 +202,7 @@ function makeShortURL(long_url, callback) {
           callback(null, short_url);
         }
         else {
-          copyToClipboard(short_url, tabs[0].id, copyByWindow, result => {
+          copyToClipboard(short_url, tab.id, copyByWindow, result => {
             if (result) {
               if(preferences.showNotifications) {
                 showNotification(browser.i18n.getMessage('copiedToClipboard', [short_url, long_url]));
@@ -218,7 +225,7 @@ function makeShortURL(long_url, callback) {
           showNotification(message);
         }
         else {
-          copyToClipboard(message, tabs[0].id, copyByWindow, result => {});
+          copyToClipboard(message, tab.id, copyByWindow, result => {});
         }
       }
     }
